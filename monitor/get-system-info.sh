@@ -53,8 +53,23 @@ get_host_info() {
     local disk_used=$(echo "$disk_info" | awk '{print $5}')
     local disk_available=$(echo "$disk_info" | awk '{print $4}')
     
-    # Temperatura CPU (si está disponible)
+    # Temperatura CPU (multi-plataforma)
     local cpu_temp="N/A"
+    
+    # Raspberry Pi / Linux
+    if [ -f /host/sys/class/thermal/thermal_zone0/temp ]; then
+        local temp_raw=$(cat /host/sys/class/thermal/thermal_zone0/temp 2>/dev/null)
+        if [ -n "$temp_raw" ] && [ "$temp_raw" -gt 0 ]; then
+            cpu_temp="$((temp_raw / 1000))°C"
+        fi
+    # Raspberry Pi con vcgencmd
+    elif command -v vcgencmd >/dev/null 2>&1; then
+        cpu_temp=$(vcgencmd measure_temp 2>/dev/null | cut -d'=' -f2 || echo "N/A")
+    # macOS (desde host)
+    elif command -v sysctl >/dev/null 2>&1; then
+        # Intentar obtener temperatura de macOS (requiere sensores específicos)
+        cpu_temp=$(sysctl -n machdep.xcpm.cpu_thermal_state 2>/dev/null | awk '{print $1"°C"}' || echo "N/A")
+    fi
     
     # Load average
     local load_avg=$(uptime | awk -F'load average:' '{print $2}' | sed 's/^ *//')

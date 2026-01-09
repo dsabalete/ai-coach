@@ -58,6 +58,7 @@ services:
       - ./monitor/logs-real.html:/usr/share/nginx/html/logs.html:ro
       - coach-bot-logs:/usr/share/nginx/html/logs:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/host/sys:ro
 
     networks:
       - coach-network
