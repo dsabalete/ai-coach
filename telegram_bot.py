@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Bot de Telegram para Coach Motivacional Personal
+Usa Groq AI para generar respuestas motivacionales personalizadas
+"""
+
 import os
 import logging
 from datetime import datetime, time

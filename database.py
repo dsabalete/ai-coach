@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Gestión de base de datos SQLite para el Coach Motivacional
+"""
+
 import sqlite3
 from datetime import datetime
 import json
