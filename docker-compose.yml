@@ -55,6 +55,7 @@ services:
     volumes:
       - ./monitor/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./monitor/index.html:/usr/share/nginx/html/index.html:ro
+      - ./monitor/logs.html:/usr/share/nginx/html/logs.html:ro
       - coach-bot-logs:/usr/share/nginx/html/logs:ro
 
     networks:
