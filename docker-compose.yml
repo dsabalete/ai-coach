@@ -43,9 +43,11 @@ services:
       - "portainer.group=coaching"
       - "portainer.description=Bot de coaching motivacional personal"
 
-  # Servicio opcional para monitoreo web
+  # Servicio para monitoreo web con logs reales
   coach-monitor:
-    image: nginx:alpine
+    build:
+      context: ./monitor
+      dockerfile: Dockerfile
     container_name: coach-bot-monitor
     restart: unless-stopped
 
@@ -55,8 +57,9 @@ services:
     volumes:
       - ./monitor/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./monitor/index.html:/usr/share/nginx/html/index.html:ro
-      - ./monitor/logs.html:/usr/share/nginx/html/logs.html:ro
+      - ./monitor/logs-real.html:/usr/share/nginx/html/logs.html:ro
       - coach-bot-logs:/usr/share/nginx/html/logs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
     networks:
       - coach-network
