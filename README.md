@@ -11,6 +11,59 @@ Un bot de Telegram inteligente que actúa como tu coach personal para ayudarte a
 - **Interfaz conversacional** natural y empática
 - **Botones rápidos** para facilitar la interacción
 
+## 🍓 Instalación en Raspberry Pi
+
+### Opción 1: Docker + Portainer (Recomendado) 🐳
+
+```bash
+# Instalación automática con Docker
+wget https://raw.githubusercontent.com/tu-repo/install_docker_pi.sh
+chmod +x install_docker_pi.sh
+./install_docker_pi.sh
+```
+
+**Ventajas de Docker:**
+
+- ✅ Gestión visual con Portainer
+- ✅ Actualizaciones con un clic
+- ✅ Aislamiento del sistema
+- ✅ Monitor web integrado
+- ✅ Backups automáticos
+
+**Acceso:**
+
+- 🐳 **Portainer:** `http://<ip-raspberry>:9000`
+- 📊 **Monitor:** `http://<ip-raspberry>:8080`
+
+### Opción 2: Instalación tradicional
+
+```bash
+# Instalación automática tradicional
+wget https://raw.githubusercontent.com/dsabalete/ai-coach/install_raspberry_pi.sh
+chmod +x install_raspberry_pi.sh
+./install_raspberry_pi.sh
+```
+
+### Guías detalladas
+
+- 🐳 [Guía completa Docker + Portainer](docker-setup-guide.md)
+- 🍓 [Guía instalación tradicional](raspberry_pi_setup.md)
+
+### Versión optimizada para Pi
+
+```bash
+# Usar versión optimizada para recursos limitados
+python3 telegram_bot_pi.py
+```
+
+**Características de la versión Pi:**
+
+- Menor uso de memoria y CPU
+- Cache inteligente para reducir llamadas a IA
+- Logging optimizado
+- Timeouts ajustados para conexiones lentas
+- Limpieza automática de memoria
+
 ## 🚀 Configuración
 
 ### 1. Prerrequisitos

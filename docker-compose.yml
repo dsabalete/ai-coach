@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  coach-bot:
+    build: .
+    container_name: coach-motivacional-bot
+    restart: unless-stopped
+
+    # Variables de entorno
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - TZ=Europe/Madrid # Ajusta tu zona horaria
+
+    # Archivos de configuración
+    env_file:
+      - .env
+
+    # Volúmenes para persistencia en disco externo
+    volumes:
+      - /mnt/sda1/shared/Projects/ai-coach/coach-bot-data:/app/data
+      - /mnt/sda1/shared/Projects/ai-coach/coach-bot-logs:/app/logs
+      - /mnt/sda1/shared/Projects/ai-coach/coach-bot-backups:/app/backups
+
+    # Configuración de red
+    networks:
+      - coach-network
+
+    # Límites de recursos para Raspberry Pi
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+        reservations:
+          memory: 256M
+          cpus: "0.25"
+
+    # Configuración de logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    # Labels para Portainer
+    labels:
+      - "traefik.enable=false"
+      - "portainer.group=coaching"
+      - "portainer.description=Bot de coaching motivacional personal"
+
+  # Servicio opcional para monitoreo web
+  coach-monitor:
+    image: nginx:alpine
+    container_name: coach-bot-monitor
+    restart: unless-stopped
+
+    ports:
+      - "8080:80"
+
+    volumes:
+      - ./monitor/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /mnt/sda1/shared/Projects/ai-coach/coach-bot-logs:/usr/share/nginx/html/logs:ro
+
+    networks:
+      - coach-network
+
+    depends_on:
+      - coach-bot
+
+    labels:
+      - "portainer.group=coaching"
+      - "portainer.description=Monitor web para logs del bot"
+
+networks:
+  coach-network:
+    driver: bridge
+    name: coach-network

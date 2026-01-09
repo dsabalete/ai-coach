@@ -1,0 +1,61 @@
+# Archivos y directorios a ignorar en el build de Docker
+
+# Entorno virtual de Python
+.venv/
+venv/
+env/
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Archivos de configuración local
+.env
+.env.local
+.env.production
+
+# Base de datos local
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Backups
+backups/
+*.tar.gz
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentación
+README.md
+*.md
+
+# Scripts de instalación
+install_*.sh
+setup.py
+
+# Archivos de prueba
+test_*.py
+debug_*.py
+
+# Archivos temporales
+tmp/
+temp/
