@@ -243,17 +243,61 @@
     <script>
         // Función para actualizar el estado
         function refreshStatus() {
-            fetch('/api/status')
-                .then(response => response.json())
+            fetch('/api/system-info')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
-                    document.getElementById('botStatusText').textContent = 'En línea';
-                    document.getElementById('botStatus').className = 'status-dot online';
+                    updateDashboard(data);
                 })
                 .catch(error => {
-                    document.getElementById('botStatusText').textContent = 'Desconectado';
-                    document.getElementById('botStatus').className = 'status-dot offline';
+                    console.error('Error obteniendo información del sistema:', error);
+                    showOfflineStatus();
                 });
+        }
+
+        // Función para actualizar el dashboard con datos reales
+        function updateDashboard(data) {
+            // Actualizar estado del bot
+            if (data.container && data.container.status === 'running') {
+                document.getElementById('botStatusText').textContent = 'En línea';
+                document.getElementById('botStatus').className = 'status-dot online';
+
+                // Actualizar métricas del bot
+                document.getElementById('uptime').textContent = data.container.uptime || '--';
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+            } else {
+                document.getElementById('botStatusText').textContent = 'Desconectado';
+                document.getElementById('botStatus').className = 'status-dot offline';
+            }
+
+            // Actualizar información del sistema
+            if (data.host) {
+                const memUsed = data.host.memory_used || '--';
+                const memTotal = data.host.memory_total || '--';
+                document.getElementById('memoryUsage').textContent = `${memUsed} / ${memTotal}`;
+
+                document.getElementById('diskUsage').textContent = data.host.disk_usage || '--';
+                document.getElementById('cpuTemp').textContent = data.host.cpu_temp || '--';
+            }
+
+            // Actualizar información de la base de datos
+            if (data.database) {
+                document.getElementById('activeUsers').textContent = data.database.users || '--';
+            }
+
+            // Actualizar timestamp
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+        }
+
+        // Función para mostrar estado offline
+        function showOfflineStatus() {
+            document.getElementById('botStatusText').textContent = 'Error de conexión';
+            document.getElementById('botStatus').className = 'status-dot offline';
+            document.getElementById('lastUpdate').textContent = 'Error al conectar';
         }
 
         // Función para actualizar logs
@@ -286,13 +330,6 @@
         // Cargar datos iniciales
         refreshStatus();
         refreshLogs();
-
-        // Simular datos del sistema
-        document.getElementById('memoryUsage').textContent = '45%';
-        document.getElementById('diskUsage').textContent = '23%';
-        document.getElementById('cpuTemp').textContent = '42°C';
-        document.getElementById('uptime').textContent = '2d 14h 32m';
-        document.getElementById('activeUsers').textContent = '5';
     </script>
 </body>
 
