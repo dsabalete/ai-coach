@@ -87,8 +87,8 @@ try:
     cursor.execute('SELECT COUNT(*) FROM goals')
     goal_count = cursor.fetchone()[0]
     
-    # Contar mensajes
-    cursor.execute('SELECT COUNT(*) FROM messages')
+    # Contar mensajes (usar daily_progress en lugar de messages)
+    cursor.execute('SELECT COUNT(*) FROM daily_progress')
     message_count = cursor.fetchone()[0]
     
     conn.close()
@@ -110,7 +110,7 @@ except Exception as e:
     echo "\"database\": {
         \"users\": \"$users\",
         \"goals\": \"$goals\",
-        \"messages\": \"$messages\"
+        \"progress_entries\": \"$messages\"
     }"
 }
 
