@@ -54,7 +54,8 @@ services:
 
     volumes:
       - ./monitor/nginx.conf:/etc/nginx/nginx.conf:ro
-      - /mnt/sda1/shared/Projects/ai-coach/coach-bot-logs:/usr/share/nginx/html/logs:ro
+      - ./monitor/index.html:/usr/share/nginx/html/index.html:ro
+      - coach-bot-logs:/usr/share/nginx/html/logs:ro
 
     networks:
       - coach-network
