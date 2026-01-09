@@ -11,16 +11,16 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PIP_NO_CACHE_DIR=1
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PIP_ROOT_USER_ACTION=ignore
 
-# Crear usuario no-root para seguridad
-RUN groupadd -r botuser && useradd -r -g botuser botuser
-
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema y crear usuario en una sola capa
 RUN apt-get update && apt-get install -y \
     sqlite3 \
     curl \
+    procps \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    && apt-get clean \
+    && groupadd -r botuser && useradd -r -g botuser botuser
 
 # Crear directorio de trabajo
 WORKDIR /app
@@ -29,7 +29,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Instalar dependencias Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --root-user-action=ignore -r requirements.txt
 
 # Copiar código de la aplicación
 COPY . .
@@ -38,9 +38,10 @@ COPY . .
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Crear directorios necesarios
+# Crear directorios necesarios y asegurar permisos
 RUN mkdir -p /app/data /app/logs /app/backups \
-    && chown -R botuser:botuser /app
+    && chown -R botuser:botuser /app \
+    && chmod -R 755 /app
 
 # Cambiar a usuario no-root
 USER botuser

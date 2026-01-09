@@ -85,8 +85,9 @@ setup_logging() {
     # Crear directorio de logs
     mkdir -p /app/logs
     
-    # Configurar rotación de logs
-    cat > /app/logs/logrotate.conf << EOF
+    # Configurar rotación de logs (solo si tenemos permisos)
+    if [ -w /app/logs ]; then
+        cat > /app/logs/logrotate.conf << EOF
 /app/logs/*.log {
     daily
     rotate 7
@@ -97,8 +98,10 @@ setup_logging() {
     create 644 botuser botuser
 }
 EOF
-    
-    log_info "Logging configurado ✓"
+        log_info "Logging configurado ✓"
+    else
+        log_warn "No se pueden configurar logs - permisos insuficientes"
+    fi
 }
 
 # Función para crear backup inicial
@@ -119,7 +122,14 @@ show_system_info() {
     echo "Directorio: $(pwd)"
     echo "Python: $(python3 --version)"
     echo "Espacio disponible: $(df -h /app | tail -1 | awk '{print $4}')"
-    echo "Memoria disponible: $(free -h | grep Mem | awk '{print $7}')"
+    
+    # Verificar si free está disponible
+    if command -v free >/dev/null 2>&1; then
+        echo "Memoria disponible: $(free -h | grep Mem | awk '{print $7}')"
+    else
+        echo "Memoria disponible: No disponible (comando free no encontrado)"
+    fi
+    
     log_info "================================"
 }
 
