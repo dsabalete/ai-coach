@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Script para actualizar logs desde el contenedor
 
 LOG_FILE="/usr/share/nginx/html/current-logs.txt"

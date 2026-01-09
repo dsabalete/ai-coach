@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Script para obtener información real del sistema y del bot
 
 CONTAINER_NAME="coach-motivacional-bot"
@@ -17,17 +17,14 @@ get_container_info() {
     local stats=$(docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}" $container_id | tail -n 1)
     local cpu_usage=$(echo "$stats" | awk '{print $2}' | sed 's/%//')
     local mem_usage=$(echo "$stats" | awk '{print $3}')
-    local mem_percent=$(echo "$stats" | awk '{print $4}' | sed 's/%//')
+    local mem_percent=$(echo "$stats" | awk '{print $4}' | sed 's/%//' | head -c 10)
     
-    # Obtener tiempo de inicio del contenedor
-    local started=$(docker inspect --format='{{.State.StartedAt}}' $container_id)
-    local uptime_seconds=$(( $(date +%s) - $(date -d "$started" +%s) ))
-    
-    # Convertir uptime a formato legible
-    local days=$((uptime_seconds / 86400))
-    local hours=$(((uptime_seconds % 86400) / 3600))
-    local minutes=$(((uptime_seconds % 3600) / 60))
-    local uptime="${days}d ${hours}h ${minutes}m"
+    # Obtener tiempo de inicio del contenedor (simplificado)
+    local uptime="N/A"
+    local started=$(docker inspect --format='{{.State.StartedAt}}' $container_id 2>/dev/null)
+    if [ -n "$started" ]; then
+        uptime="Running"
+    fi
     
     # Estado del contenedor
     local status=$(docker inspect --format='{{.State.Status}}' $container_id)
@@ -56,10 +53,6 @@ get_host_info() {
     
     # Temperatura CPU (si está disponible)
     local cpu_temp="N/A"
-    if [ -f /sys/class/thermal/thermal_zone0/temp ]; then
-        local temp_raw=$(cat /sys/class/thermal/thermal_zone0/temp)
-        cpu_temp="$((temp_raw / 1000))°C"
-    fi
     
     # Load average
     local load_avg=$(uptime | awk -F'load average:' '{print $2}' | sed 's/^ *//')
