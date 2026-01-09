@@ -43,16 +43,33 @@ check_env_vars() {
 init_database() {
     log_info "Inicializando base de datos..."
     
-    # Crear directorio de datos si no existe
+    # Crear directorio de datos si no existe y asegurar permisos
     mkdir -p /app/data
     
+    # Intentar cambiar permisos si es posible
+    if [ -w /app/data ]; then
+        log_info "Directorio /app/data tiene permisos de escritura ✓"
+    else
+        log_warn "Directorio /app/data no tiene permisos de escritura"
+        # Intentar crear la base de datos en un directorio temporal
+        export DB_PATH="/tmp/coach_bot.db"
+        log_info "Usando base de datos temporal en: $DB_PATH"
+    fi
+    
     # Verificar si la base de datos existe, si no, crearla
-    if [ ! -f "/app/data/coach_bot.db" ]; then
-        log_info "Creando nueva base de datos..."
+    DB_FILE="${DB_PATH:-/app/data/coach_bot.db}"
+    if [ ! -f "$DB_FILE" ]; then
+        log_info "Creando nueva base de datos en: $DB_FILE"
         python3 -c "
+import os
 from database import Database
-db = Database('/app/data/coach_bot.db')
-print('Base de datos inicializada correctamente')
+db_path = os.environ.get('DB_PATH', '/app/data/coach_bot.db')
+try:
+    db = Database(db_path)
+    print(f'Base de datos inicializada correctamente en: {db_path}')
+except Exception as e:
+    print(f'Error creando base de datos: {e}')
+    exit(1)
 "
     else
         log_info "Base de datos existente encontrada ✓"

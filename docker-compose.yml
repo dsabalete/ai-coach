@@ -16,11 +16,11 @@ services:
     env_file:
       - .env
 
-    # Volúmenes para persistencia en disco externo
+    # Volúmenes para persistencia (usando volúmenes Docker locales como fallback)
     volumes:
-      - /mnt/sda1/shared/Projects/ai-coach/coach-bot-data:/app/data
-      - /mnt/sda1/shared/Projects/ai-coach/coach-bot-logs:/app/logs
-      - /mnt/sda1/shared/Projects/ai-coach/coach-bot-backups:/app/backups
+      - coach-bot-data:/app/data
+      - coach-bot-logs:/app/logs
+      - coach-bot-backups:/app/backups
 
     # Configuración de red
     networks:
@@ -70,3 +70,11 @@ networks:
   coach-network:
     driver: bridge
     name: coach-network
+
+volumes:
+  coach-bot-data:
+    driver: local
+  coach-bot-logs:
+    driver: local
+  coach-bot-backups:
+    driver: local

@@ -35,7 +35,9 @@ WAITING_GOAL, WAITING_PROGRESS, WAITING_MOOD = range(3)
 
 class MotivationalBotPi:
     def __init__(self):
-        self.db = Database()
+        # Usar variable de entorno para la ruta de la base de datos
+        db_path = os.getenv('DB_PATH', '/app/data/coach_bot.db')
+        self.db = Database(db_path)
         groq_key = os.getenv('GROQ_API_KEY')
         if groq_key:
             self.ai_coach = AICoach(groq_key)
@@ -334,8 +336,13 @@ def main():
     # Crear bot
     bot = MotivationalBotPi()
     
-    # Configuración optimizada para Pi
-    application = Application.builder().token(bot_token).build()
+    # Configuración optimizada para Pi con timeouts en el builder
+    application = (Application.builder()
+                  .token(bot_token)
+                  .get_updates_read_timeout(30)
+                  .get_updates_write_timeout(30)
+                  .get_updates_connect_timeout(30)
+                  .build())
     
     # Manejadores de conversación
     goal_handler = ConversationHandler(
@@ -369,14 +376,10 @@ def main():
     print("Optimizado para Raspberry Pi - Uso eficiente de recursos")
     print("Presiona Ctrl+C para detener")
     
-    # Configuración de polling optimizada
+    # Configuración de polling optimizada (sin timeouts deprecados)
     application.run_polling(
         allowed_updates=Update.ALL_TYPES,
         poll_interval=2.0,  # Menos frecuente para ahorrar recursos
-        timeout=20,
-        read_timeout=30,
-        write_timeout=30,
-        connect_timeout=30
     )
 
 if __name__ == '__main__':
