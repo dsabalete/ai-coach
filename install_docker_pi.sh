@@ -1,10 +1,10 @@
 #!/bin/bash
 # -*- coding: utf-8 -*-
-# Script de instalación automática con Docker para Raspberry Pi
+# Script de instalación SEGURA con Docker para Raspberry Pi
 
 set -e
 
-echo "🐳 Instalación del Coach Motivacional con Docker en Raspberry Pi"
+echo "🐳 Instalación SEGURA del Coach Motivacional con Docker en Raspberry Pi"
 echo "📁 Ubicación: /mnt/sda1/shared/Projects"
 echo "=============================================================="
 
@@ -30,6 +30,49 @@ print_error() {
 print_info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
 }
+
+# VERIFICACIONES DE SEGURIDAD
+echo "🔍 VERIFICACIONES DE SEGURIDAD"
+echo "================================"
+
+# Verificar contenedores existentes
+EXISTING_CONTAINERS=$(docker ps -a --format "{{.Names}}" | wc -l)
+if [ "$EXISTING_CONTAINERS" -gt 0 ]; then
+    print_warning "Se encontraron $EXISTING_CONTAINERS contenedores existentes:"
+    docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+    echo ""
+    read -p "¿Continuar con la instalación? Esto podría afectar contenedores existentes (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_info "Instalación cancelada por el usuario"
+        exit 0
+    fi
+fi
+
+# Verificar Portainer específicamente
+if docker ps -a | grep -q portainer; then
+    print_warning "Portainer detectado. Creando backup automático..."
+    
+    # Crear backup de Portainer
+    PORTAINER_DATA=$(docker inspect portainer 2>/dev/null | grep -A 10 "Mounts" | grep "Source" | cut -d'"' -f4 | head -1)
+    
+    if [ ! -z "$PORTAINER_DATA" ] && [ -d "$PORTAINER_DATA" ]; then
+        BACKUP_DIR="/tmp/portainer-backup-$(date +%Y%m%d-%H%M%S)"
+        sudo cp -r "$PORTAINER_DATA" "$BACKUP_DIR" 2>/dev/null || true
+        print_status "Backup de Portainer creado en: $BACKUP_DIR"
+        echo "BACKUP_LOCATION=$BACKUP_DIR" > /tmp/portainer_backup_info.txt
+    fi
+    
+    read -p "¿Quieres que el script preserve tu Portainer existente? (Y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]; then
+        PRESERVE_PORTAINER=true
+        print_status "Portainer será preservado"
+    else
+        PRESERVE_PORTAINER=false
+        print_warning "Portainer será reemplazado"
+    fi
+fi
 
 # Configuración de rutas
 EXTERNAL_DRIVE="/mnt/sda1/shared/Projects"
@@ -454,3 +497,38 @@ echo "   📂 Logs: $LOGS_DIR"
 echo "   📂 Backups: $BACKUPS_DIR"
 echo ""
 print_status "¡Tu Coach Motivacional con Docker está listo! 🐳🚀"
+
+# RESTAURACIÓN POST-INSTALACIÓN
+echo ""
+echo "🔧 RESTAURACIÓN POST-INSTALACIÓN"
+echo "================================="
+
+# Restaurar Portainer si se hizo backup
+if [ -f "/tmp/portainer_backup_info.txt" ]; then
+    BACKUP_LOCATION=$(cat /tmp/portainer_backup_info.txt | cut -d'=' -f2)
+    if [ -d "$BACKUP_LOCATION" ]; then
+        print_info "Backup de Portainer encontrado en: $BACKUP_LOCATION"
+        echo "Para restaurar tu Portainer anterior:"
+        echo "  1. Parar Portainer actual: docker stop portainer && docker rm portainer"
+        echo "  2. Restaurar datos: sudo cp -r $BACKUP_LOCATION/* /mnt/sda1/portainer/data/"
+        echo "  3. Recrear Portainer: docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /mnt/sda1/portainer/data:/data portainer/portainer-ce:latest"
+    fi
+fi
+
+# Información sobre contenedores que podrían haberse perdido
+if [ "$EXISTING_CONTAINERS" -gt 0 ]; then
+    print_warning "Si perdiste contenedores, puedes:"
+    echo "  1. Acceder a Portainer: http://<ip-raspberry>:9000"
+    echo "  2. Ir a 'App Templates' para reinstalar servicios comunes"
+    echo "  3. Usar 'Stacks' para recrear configuraciones docker-compose"
+    echo "  4. Verificar 'Volumes' para recuperar datos existentes"
+fi
+
+echo ""
+echo "📞 SOPORTE"
+echo "=========="
+echo "Si tienes problemas:"
+echo "  1. Verifica contenedores: docker ps -a"
+echo "  2. Verifica volúmenes: docker volume ls"
+echo "  3. Logs de Portainer: docker logs portainer"
+echo "  4. Reiniciar Docker: sudo systemctl restart docker"

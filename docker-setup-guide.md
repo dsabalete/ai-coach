@@ -1,5 +1,33 @@
 # 🐳 Guía de instalación con Docker y Portainer
 
+## ⚠️ IMPORTANTE: Verificación previa
+
+**ANTES de ejecutar cualquier script de instalación, ejecuta estos comandos:**
+
+```bash
+# Verificar contenedores existentes
+docker ps -a
+
+# Verificar volúmenes existentes
+docker volume ls
+
+# Verificar redes existentes
+docker network ls
+
+# Hacer backup de Portainer si existe
+if docker ps -a | grep -q portainer; then
+    echo "⚠️  Portainer detectado. Haciendo backup..."
+    docker run --rm -v portainer_data:/data -v /tmp:/backup alpine tar czf /backup/portainer-backup-$(date +%Y%m%d-%H%M%S).tar.gz -C /data . 2>/dev/null || echo "Backup con volumen falló, verificando bind mount..."
+
+    # Si usa bind mount, hacer backup diferente
+    PORTAINER_DATA=$(docker inspect portainer | grep -A 10 "Mounts" | grep "Source" | cut -d'"' -f4)
+    if [ ! -z "$PORTAINER_DATA" ]; then
+        sudo cp -r "$PORTAINER_DATA" "/tmp/portainer-backup-$(date +%Y%m%d-%H%M%S)"
+        echo "✅ Backup creado en /tmp/portainer-backup-$(date +%Y%m%d-%H%M%S)"
+    fi
+fi
+```
+
 ## Ventajas de usar Docker en Raspberry Pi
 
 ✅ **Gestión visual** con Portainer - Interfaz web intuitiva  
@@ -35,6 +63,58 @@ docker ps | grep portainer
 ```
 
 ## Instalación del bot con Docker
+
+### ⚠️ Verificación de seguridad OBLIGATORIA
+
+**NUNCA ejecutes scripts de instalación sin verificar primero:**
+
+```bash
+# 1. Verificar qué tienes ejecutándose
+docker ps -a
+docker volume ls
+docker network ls
+
+# 2. Hacer backup de Portainer si existe
+./backup_portainer.sh  # (script incluido abajo)
+
+# 3. Anotar qué servicios tienes para restaurar después
+docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Ports}}"
+```
+
+### Script de backup de Portainer
+
+Crea este script ANTES de cualquier instalación:
+
+```bash
+# Crear script de backup
+cat > backup_portainer.sh << 'EOF'
+#!/bin/bash
+echo "🔍 Verificando Portainer existente..."
+
+if docker ps -a | grep -q portainer; then
+    echo "📦 Portainer encontrado, creando backup..."
+
+    # Obtener ruta de datos de Portainer
+    PORTAINER_DATA=$(docker inspect portainer 2>/dev/null | grep -A 10 "Mounts" | grep "Source" | cut -d'"' -f4 | head -1)
+
+    if [ ! -z "$PORTAINER_DATA" ] && [ -d "$PORTAINER_DATA" ]; then
+        # Backup de bind mount
+        BACKUP_DIR="/tmp/portainer-backup-$(date +%Y%m%d-%H%M%S)"
+        sudo cp -r "$PORTAINER_DATA" "$BACKUP_DIR"
+        echo "✅ Backup creado en: $BACKUP_DIR"
+        echo "📁 Para restaurar: sudo cp -r $BACKUP_DIR/* /mnt/sda1/portainer/data/"
+    else
+        # Backup de volumen Docker
+        docker run --rm -v portainer_data:/data -v /tmp:/backup alpine tar czf /backup/portainer-backup-$(date +%Y%m%d-%H%M%S).tar.gz -C /data .
+        echo "✅ Backup de volumen creado en /tmp/"
+    fi
+else
+    echo "ℹ️  No se encontró Portainer existente"
+fi
+EOF
+
+chmod +x backup_portainer.sh
+```
 
 ### 1. Clonar o transferir el proyecto
 

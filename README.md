@@ -15,8 +15,17 @@ Un bot de Telegram inteligente que actúa como tu coach personal para ayudarte a
 
 ### Opción 1: Docker + Portainer (Recomendado) 🐳
 
+⚠️ **IMPORTANTE: Si ya tienes Portainer o contenedores ejecutándose, lee [RECUPERACION_DOCKER.md](RECUPERACION_DOCKER.md) ANTES de continuar.**
+
 ```bash
-# Instalación automática con Docker
+# PASO 1: Verificar estado actual (OBLIGATORIO)
+docker ps -a
+docker volume ls
+
+# PASO 2: Hacer backup si tienes contenedores existentes
+# (ver scripts en RECUPERACION_DOCKER.md)
+
+# PASO 3: Instalación automática con Docker
 wget https://raw.githubusercontent.com/tu-repo/install_docker_pi.sh
 chmod +x install_docker_pi.sh
 ./install_docker_pi.sh
