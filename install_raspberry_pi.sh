@@ -170,7 +170,7 @@ print_status "Creando script de monitoreo..."
 cat > "$PROJECT_DIR/scripts/monitor.sh" << 'EOF'
 #!/bin/bash
 # Script de monitoreo del bot en disco externo
-PROJECT_DIR="/mnt/sda1/shared/Projects/coach-motivacional-bot"
+PROJECT_DIR="/mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot"
 LOG_FILE="$PROJECT_DIR/logs/monitor.log"
 
 # Crear directorio de logs si no existe
@@ -225,7 +225,7 @@ print_status "Creando script de backup..."
 cat > "$PROJECT_DIR/scripts/backup.sh" << 'EOF'
 #!/bin/bash
 # Script de backup automático en disco externo
-PROJECT_DIR="/mnt/sda1/shared/Projects/coach-motivacional-bot"
+PROJECT_DIR="/mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot"
 BACKUP_DIR="$PROJECT_DIR/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 

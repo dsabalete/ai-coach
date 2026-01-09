@@ -26,7 +26,7 @@ docker volume ls
 # (ver scripts en RECUPERACION_DOCKER.md)
 
 # PASO 3: Instalación automática con Docker
-wget https://raw.githubusercontent.com/tu-repo/install_docker_pi.sh
+wget https://raw.githubusercontent.com/dsabalete/ai-coach/refs/heads/main/install_docker_pi.sh
 chmod +x install_docker_pi.sh
 ./install_docker_pi.sh
 ```

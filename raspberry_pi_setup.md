@@ -279,7 +279,7 @@ cd ~/coach-motivacional-bot  # Apunta a /mnt/sda1/shared/Projects/ai-coach/coach
 
 ### Scripts de gestión automática
 
-#### Script de monitoreo (/mnt/sda1/shared/Projects/coach-motivacional-bot/scripts/monitor.sh)
+#### Script de monitoreo (/mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot/scripts/monitor.sh)
 
 ```bash
 #!/bin/bash
@@ -317,7 +317,7 @@ fi
 find "/mnt/sda1/shared/Projects/ai-coach/coach-bot-logs" -name "*.log" -mtime +30 -delete 2>/dev/null || true
 ```
 
-#### Script de backup (/mnt/sda1/shared/Projects/coach-motivacional-bot/scripts/backup.sh)
+#### Script de backup (/mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot/scripts/backup.sh)
 
 ```bash
 #!/bin/bash

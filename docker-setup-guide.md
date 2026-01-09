@@ -43,13 +43,13 @@ fi
 
 ```bash
 # Crear directorios en el disco externo
-sudo mkdir -p /mnt/sda1/shared/Projects/coach-bot-data
-sudo mkdir -p /mnt/sda1/shared/Projects/coach-bot-logs
-sudo mkdir -p /mnt/sda1/shared/Projects/coach-bot-backups
-sudo mkdir -p /mnt/sda1/shared/Projects/coach-motivacional-bot
+sudo mkdir -p /mnt/sda1/shared/Projects/ai-coach/coach-bot-data
+sudo mkdir -p /mnt/sda1/shared/Projects/ai-coach/coach-bot-logs
+sudo mkdir -p /mnt/sda1/shared/Projects/ai-coach/coach-bot-backups
+sudo mkdir -p /mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot
 
 # Configurar permisos
-sudo chown -R david:david /mnt/sda1/shared/Projects/
+sudo chown -R david:david /mnt/sda1/shared/Projects/ai-coach/
 ```
 
 ### 2. Verificar Docker y Portainer
@@ -119,10 +119,10 @@ chmod +x backup_portainer.sh
 ### 1. Clonar o transferir el proyecto
 
 ```bash
-cd /mnt/sda1/shared/Projects/coach-motivacional-bot
+cd /mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot
 
 # Si tienes los archivos localmente
-scp -r coach-motivacional-bot/* david@<ip-raspberry>:/mnt/sda1/shared/Projects/coach-motivacional-bot/
+scp -r coach-motivacional-bot/* david@<ip-raspberry>:/mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot/
 
 # O crear los archivos directamente (ver archivos incluidos)
 ```
@@ -273,7 +273,7 @@ Docker verifica cada 30 segundos que el bot esté funcionando:
 ### Método 2: Desde línea de comandos
 
 ```bash
-cd /mnt/sda1/shared/Projects/coach-motivacional-bot
+cd /mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot
 
 # Descargar cambios (si usas git)
 git pull
@@ -370,15 +370,15 @@ find /mnt/sda1/shared/Projects/coach-bot-logs -name "*.log" -mtime +7 -delete
 #!/bin/bash
 # Script de backup completo
 DATE=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="/mnt/sda1/shared/Projects/coach-bot-backups"
+BACKUP_DIR="/mnt/sda1/shared/Projects/ai-coach/coach-bot-backups"
 
 # Parar el bot temporalmente
 docker-compose stop coach-bot
 
 # Crear backup de datos
 tar -czf "$BACKUP_DIR/complete-backup-$DATE.tar.gz" \
-    /mnt/sda1/shared/Projects/coach-bot-data \
-    /mnt/sda1/shared/Projects/coach-motivacional-bot/.env
+    /mnt/sda1/shared/Projects/ai-coach/coach-bot-data \
+    /mnt/sda1/shared/Projects/ai-coach/coach-motivacional-bot/.env
 
 # Reiniciar el bot
 docker-compose start coach-bot
