@@ -22,7 +22,7 @@ load_dotenv()
 # Configurar logging optimizado para Pi
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.WARNING,  # Menos verbose para ahorrar recursos
+    level=logging.INFO,  # Cambiar a INFO para ver interacciones
     handlers=[
         logging.FileHandler('/tmp/coach_bot.log'),
         logging.StreamHandler()
@@ -68,6 +68,7 @@ class MotivationalBotPi:
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Comando /start - Bienvenida optimizada"""
         user = update.effective_user
+        logger.info(f"👤 Usuario {user.first_name} ({user.id}) ejecutó /start")
         
         # Registrar usuario en la base de datos
         self.db.add_user(user.id, user.username, user.first_name)
@@ -115,6 +116,9 @@ Botones rápidos disponibles en el teclado.
     
     async def add_goal(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Iniciar proceso de añadir objetivo"""
+        user = update.effective_user
+        logger.info(f"🎯 Usuario {user.first_name} ({user.id}) ejecutó /objetivo")
+        
         await update.message.reply_text(
             "🎯 Describe tu objetivo de forma específica:\n\n"
             "Ejemplos:\n"
